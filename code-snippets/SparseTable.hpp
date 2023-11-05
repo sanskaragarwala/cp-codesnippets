@@ -3,6 +3,7 @@ using namespace std;
 
 class Sparse{
 
+    //Initial Value
     int MAX_N = 100'005;
     int LOG = 17;
     vector<int>a;
