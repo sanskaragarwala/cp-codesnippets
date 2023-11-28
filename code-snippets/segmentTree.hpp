@@ -1,22 +1,20 @@
-using namespace std;
-#include <bits/stdc++.h>
-struct data
+struct seg_data
 {
 	//Use required attributes
 	int mn;
 
 	//Default Values
-	data() : mn(1e9) {};
+	seg_data() : mn(-1e18) {};
 };
 
 struct SegTree
 {
 	int N;
-	vector<data> st;
+	vector<seg_data> st;
 	vector<bool> cLazy;
 	vector<int> lazy;
 
-	void init(int n)
+	SegTree(int n)
 	{
 		N = n;
 		st.resize(4 * N + 5);
@@ -25,9 +23,9 @@ struct SegTree
 	}
 
 	//Write reqd merge functions
-	void merge(data &cur, data &l, data &r) 
+	void merge(seg_data &cur, seg_data &l, seg_data &r) 
 	{
-		cur.mn = min(l.mn, r.mn);
+		cur.mn = max(l.mn, r.mn);
 	}
 	
 	//Handle lazy propagation appriopriately
@@ -48,7 +46,7 @@ struct SegTree
 	{
 		if(L==R)
 		{
-			st[node].mn = 1e9;
+			st[node].mn = -1e18;
 			return;
 		}
 		int M=(L + R)/2;
@@ -57,23 +55,23 @@ struct SegTree
 		merge(st[node], st[node*2], st[node*2+1]);
 	}
 
-	data Query(int node, int L, int R, int i, int j)
+	seg_data Query(int node, int L, int R, int i, int j)
 	{
 		if(cLazy[node])
 			propagate(node, L, R);
 		if(j<L || i>R)
-			return data();
+			return seg_data();
 		if(i<=L && R<=j)
 			return st[node];
 		int M = (L + R)/2;
-		data left=Query(node*2, L, M, i, j);
-		data right=Query(node*2 + 1, M + 1, R, i, j);
-		data cur;
+		seg_data left=Query(node*2, L, M, i, j);
+		seg_data right=Query(node*2 + 1, M + 1, R, i, j);
+		seg_data cur;
 		merge(cur, left, right);
 		return cur;
 	}
 
-	data pQuery(int node, int L, int R, int pos)
+	seg_data pQuery(int node, int L, int R, int pos)
 	{
 		if(cLazy[node])
 			propagate(node, L, R);
@@ -124,12 +122,12 @@ struct SegTree
 		merge(st[node], st[node*2], st[node*2 + 1]);
 	}
 
-	data query(int pos)
+	seg_data query(int pos)
 	{
 		return pQuery(1, 1, N, pos);
 	}
 
-	data query(int l, int r)
+	seg_data query(int l, int r)
 	{
 		return Query(1, 1, N, l, r);
 	}
@@ -144,9 +142,3 @@ struct SegTree
 		Update(1, 1, N, l, r, val);
 	}
 };
-
-//Problem 1 (Max Query - Point Update with Coordinate Compression): http://codeforces.com/gym/100733/problem/F
-//Solution 1: http://codeforces.com/gym/100733/submission/41643795
-
-//Problem 2 (Min Query - Offline processing): https://codeforces.com/problemset/problem/522/D
-//Solution 2: https://codeforces.com/contest/522/submission/45493164
